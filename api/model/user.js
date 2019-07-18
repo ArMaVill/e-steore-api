@@ -4,23 +4,10 @@ const { Schema } = mongoose;
 const model = mongoose.model.bind(mongoose);
 const { ObjectId } = mongoose.Schema.Types;
 
-const productSchema = Schema({
-  id: ObjectId,
-  name: String,
-  image: String,
-  price: Number,
-  description: String,
-  tags: [{ type: ObjectId, ref: 'Tag' }]
-});
-
-const tagSchema = Schema({
-  id: ObjectId,
-  name: String
-});
-
 const cartSchema = Schema({
+  id: ObjectId,
   status: String,
-  items: [{ type: ObjectId, ref: 'Product' }]
+  items: [{ product: { type: ObjectId, ref: 'Product' }, quantity: Number }]
 });
 
 const addressSchema = Schema({
@@ -41,15 +28,14 @@ const userSchema = Schema({
       items: []
     }
   },
-  orders: [{ type: ObjectId, ref: 'Cart' }],
+  orders: [{ type: ObjectId, orderDate: Date, ref: 'Cart' }],
   address: [{ type: ObjectId, ref: 'Address' }]
 });
 
 userSchema.virtual('total').get(() => this.cart.items.count);
 
-const Product = model('Product', productSchema);
-const Tag = model('Tag', tagSchema);
+const Cart = model('Cart', cartSchema);
 const Address = model('Address', addressSchema);
-const User = model('Manufacturer', userSchema);
+const User = model('User', userSchema);
 
-module.exports = { Product, Address, Tag, User };
+module.exports = { User, Cart, Address };

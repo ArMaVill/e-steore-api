@@ -1,50 +1,101 @@
-// ./controllers/product
-const Model = require('../model/schema');
+const bcrypt = require('bcryptjs');
+const Model = require('../model/user');
 
-const { Product, Tag } = Model;
+const { User, Cart } = Model;
 
-const productController = {
+const userController = {
   all(req, res) {
-    Product.find({})
-      .populate('tags')
-      .exec((err, products) => res.json(products));
+    User.find().exec((err, user) => res.json(user));
   },
   find(req, res) {
-    const idParam = req.params.id;
-    Product.findOne({ _id: idParam })
-      .populate('tags')
-      .exec((err, product) => res.json(product));
-  },
-  create(req, res) {
-    const requestBody = req.body;
-    const newProduct = new Product(requestBody);
-
-    newProduct.save((err, saved) => {
-      Product.findOne({ _id: saved._id })
-        .populate('tags')
-        .exec((err, product) => res.json(product));
-    });
+    const { id } = req.params;
+    User.findOne({ _id: id })
+      .then((user, err) => {
+        console.log(err, user);
+        if (user) return res.json(user);
+        res.status(400).json({ err, msg: `Usuario no encontrado` });
+      })
+      .catch(err => {
+        res.status(400).json({ err, msg: `Usuario no encontrado` });
+      });
   },
   update(req, res) {
     const idParam = req.params.id;
-    const product = req.body;
+    const userReq = req.body;
 
-    Product.findOne({ _id: idParam }, (err, data) => {
-      data.name = product.name;
-      data.description = product.description;
-      data.image = product.image;
-      data.price = product.price;
-      data.tags = product.tags;
-
-      data.save((err, updated) => res.json(updated));
+    User.findOne({ _id: idParam }).then((err, user) => {
+      if (user) {
+        user.username = userReq.username;
+        user.password = userReq.password;
+        user.email = userReq.email;
+        user.save((err, updated) => res.json(updated));
+      }
+      return res.status(400).json({ msg: `Usuario no encontrado` });
     });
   },
   delete(req, res) {
-    const idParam = req.params.id;
-    Product.findOne({ _id: idParam }).remove((err, removed) =>
-      res.json(idParam)
-    );
-  }
+    const { id } = req.params;
+    User.findOne({ _id: id }, (err, tag) => {
+      if (tag) {
+        User.deleteOne({ _id: id }, (err, removed) => res.json(removed));
+      } else {
+        return res
+          .status(400)
+          .json({ message: 'No se elimino el usuario categoria' });
+      }
+    });
+  },
+  register(req, res) {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ msg: 'Faltan datos' });
+    }
+
+    User.findOne({ email }).then(user => {
+      if (user)
+        return res
+          .status(400)
+          .json({ msg: `El email ${email} ya esta en uso` });
+
+      const newUser = new User({
+        username,
+        email,
+        password
+      });
+
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, (err, hash) => {
+          if (err) throw err;
+          newUser.password = hash;
+          newUser.save().then(user => {
+            res.json({
+              user: {
+                id: user._id,
+                name: user.username,
+                email: user.email
+              }
+            });
+          });
+        });
+      });
+    });
+  },
+  login(req, res) {
+    const requestBody = req.body;
+    const newUser = new User(requestBody);
+
+    newUser.save().exec((err, user) => res.json(user));
+  },
+  logout(req, res) {
+    const requestBody = req.body;
+    const newUser = new User(requestBody);
+
+    newUser.save((err, user) => res.json(user));
+  },
+  orders() {},
+  findOrder() {},
+  allAddresses() {}
 };
 
-module.exports = productController;
+module.exports = userController;

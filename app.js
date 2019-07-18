@@ -8,12 +8,10 @@ const routes = require('./api/route/routes');
 require('dotenv').config();
 
 const port = process.env.PORT || 3000;
-// mongoose.connect(
-//   `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_URL}`,
-//   { useNewUrlParser: true }
-// );
+
 const db = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_URL}`;
 mongoose.connect(db, { useNewUrlParser: true });
+mongoose.set('useFindAndModify', false);
 mongoose.set('useFindAndModify', false);
 
 const app = express();

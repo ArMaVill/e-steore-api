@@ -1,4 +1,4 @@
-const schema = require('../model/schema');
+const schema = require('../model/product');
 
 const { Tag } = schema;
 
@@ -7,17 +7,56 @@ const tagController = {
     Tag.find({}).exec((err, tags) => res.json(tags));
   },
   find(req, res) {
-    const newTag = new Tag(req.body);
-    newTag.save((err, tag) => res.json(tag));
+    const { id } = req.params;
+    Tag.findOne({ _id: id }, (err, tag) => {
+      if (tag) return res.json(tag);
+      return res.status(400).json({ message: 'No se encontro esa categoria' });
+    });
   },
   create(req, res) {
-    // logica de create
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: 'El nombre es requerido' });
+    }
+
+    Tag.findOne({ name }).then(tag => {
+      if (tag) {
+        return res
+          .status(400)
+          .json({ message: `La Categoria "${name}" ya existe` });
+      }
+      const newTag = new Tag({ name });
+      newTag.save().then(tag => {
+        return res.json({ tag });
+      });
+    });
   },
   update(req, res) {
-    // logica de update
+    const idParam = req.params.id;
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: 'El nombre es requerido' });
+    }
+    Tag.findOne({ _id: idParam }, (err, tag) => {
+      if (tag) {
+        tag.name = name;
+        tag.save((err, updated) => res.json(updated));
+      } else {
+        return res.status(400).json({ message: 'No se encontro categoria' });
+      }
+    });
   },
   delete(req, res) {
-    // logica de delete
+    const { id } = req.params;
+    Tag.findOne({ _id: id }, (err, tag) => {
+      if (tag) {
+        Tag.deleteOne({ _id: id }, (err, removed) => res.json(removed));
+      } else {
+        return res.status(400).json({ message: 'No se encontro categoria' });
+      }
+    });
   }
 };
 

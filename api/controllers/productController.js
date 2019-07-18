@@ -1,5 +1,4 @@
-// ./controllers/product
-const Model = require('../model/schema');
+const Model = require('../model/product');
 
 const { Product, Tag } = Model;
 
