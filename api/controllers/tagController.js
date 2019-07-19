@@ -4,31 +4,41 @@ const { Tag } = schema;
 
 const tagController = {
   all(req, res) {
-    Tag.find({}).exec((err, tags) => res.json(tags));
+    Tag.find({}).exec((err, tags) =>
+      res.json({ err: false, message: 'Lista de categorias', tags })
+    );
   },
   find(req, res) {
     const { id } = req.params;
     Tag.findOne({ _id: id }, (err, tag) => {
-      if (tag) return res.json(tag);
-      return res.status(400).json({ message: 'No se encontro esa categoria' });
+      if (tag) return res.json({ err: false, tag });
+      return res
+        .status(400)
+        .json({ err: true, message: 'No se encontro esa categoria' });
     });
   },
   create(req, res) {
     const { name } = req.body;
 
     if (!name) {
-      return res.status(400).json({ message: 'El nombre es requerido' });
+      return res
+        .status(400)
+        .json({ err: true, message: 'El nombre es requerido' });
     }
 
     Tag.findOne({ name }).then(tag => {
       if (tag) {
         return res
           .status(400)
-          .json({ message: `La Categoria "${name}" ya existe` });
+          .json({ err: true, message: `La Categoria "${name}" ya existe` });
       }
       const newTag = new Tag({ name });
       newTag.save().then(tag => {
-        return res.json({ tag });
+        return res.json({
+          err: false,
+          message: `Se creo una nueva categoria [${tag.name}]`,
+          tag
+        });
       });
     });
   },
@@ -37,14 +47,18 @@ const tagController = {
     const { name } = req.body;
 
     if (!name) {
-      return res.status(400).json({ message: 'El nombre es requerido' });
+      return res
+        .status(400)
+        .json({ err: true, message: 'El nombre es requerido' });
     }
     Tag.findOne({ _id: idParam }, (err, tag) => {
       if (tag) {
         tag.name = name;
         tag.save((err, updated) => res.json(updated));
       } else {
-        return res.status(400).json({ message: 'No se encontro categoria' });
+        return res
+          .status(400)
+          .json({ err: true, message: 'No se encontro categoria' });
       }
     });
   },
@@ -54,7 +68,9 @@ const tagController = {
       if (tag) {
         Tag.deleteOne({ _id: id }, (err, removed) => res.json(removed));
       } else {
-        return res.status(400).json({ message: 'No se encontro categoria' });
+        return res
+          .status(400)
+          .json({ err: true, message: 'No se encontro categoria' });
       }
     });
   }

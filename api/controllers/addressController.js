@@ -1,4 +1,3 @@
-const bcrypt = require('bcryptjs');
 const Model = require('../model/user');
 
 const { User, Address } = Model;

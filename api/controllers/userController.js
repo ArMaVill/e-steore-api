@@ -46,9 +46,9 @@ const userController = {
     });
   },
   register(req, res) {
-    const { username, email, password } = req.body;
+    const { username, email, password, line1, city, province } = req.body;
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || line1 || city || province) {
       return res.status(400).json({ msg: 'Faltan datos' });
     }
 
@@ -93,8 +93,6 @@ const userController = {
 
     newUser.save((err, user) => res.json(user));
   },
-  orders() {},
-  findOrder() {},
   allAddresses() {}
 };
 
