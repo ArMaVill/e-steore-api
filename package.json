@@ -1,11 +1,12 @@
 {
-  "name": "backend",
+  "name": "e-store-api",
   "version": "1.0.0",
   "description": "Backed for e-commerce site",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": "https://github.com/ArMaVill/e-store-api",
   "author": "Arturo Madrigal",
   "license": "MIT",
   "dependencies": {

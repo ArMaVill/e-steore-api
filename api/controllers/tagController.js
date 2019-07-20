@@ -5,7 +5,7 @@ const { Tag } = schema;
 const tagController = {
   all(req, res) {
     Tag.find({}).exec((err, tags) =>
-      res.json({ err: false, message: 'Lista de categorias', tags })
+      res.json({ error: false, message: 'Lista de categorias', tags })
     );
   },
   find(req, res) {
@@ -14,7 +14,7 @@ const tagController = {
       if (tag) return res.json({ err: false, tag });
       return res
         .status(400)
-        .json({ err: true, message: 'No se encontro esa categoria' });
+        .json({ error: true, message: 'No se encontro esa categoria' });
     });
   },
   create(req, res) {
@@ -23,19 +23,19 @@ const tagController = {
     if (!name) {
       return res
         .status(400)
-        .json({ err: true, message: 'El nombre es requerido' });
+        .json({ error: true, message: 'El nombre es requerido' });
     }
 
     Tag.findOne({ name }).then(tag => {
       if (tag) {
         return res
           .status(400)
-          .json({ err: true, message: `La Categoria "${name}" ya existe` });
+          .json({ error: true, message: `La Categoria "${name}" ya existe` });
       }
       const newTag = new Tag({ name });
       newTag.save().then(tag => {
         return res.json({
-          err: false,
+          error: false,
           message: `Se creo una nueva categoria [${tag.name}]`,
           tag
         });
@@ -49,7 +49,7 @@ const tagController = {
     if (!name) {
       return res
         .status(400)
-        .json({ err: true, message: 'El nombre es requerido' });
+        .json({ error: true, message: 'El nombre es requerido' });
     }
     Tag.findOne({ _id: idParam }, (err, tag) => {
       if (tag) {
@@ -58,7 +58,7 @@ const tagController = {
       } else {
         return res
           .status(400)
-          .json({ err: true, message: 'No se encontro categoria' });
+          .json({ error: true, message: 'No se encontro categoria' });
       }
     });
   },
@@ -70,7 +70,7 @@ const tagController = {
       } else {
         return res
           .status(400)
-          .json({ err: true, message: 'No se encontro categoria' });
+          .json({ error: true, message: 'No se encontro categoria' });
       }
     });
   }

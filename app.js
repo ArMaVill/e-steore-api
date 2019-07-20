@@ -21,6 +21,10 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use('/', routes);
 
+app.get('*', (req, res) => {
+  res.status(404).send({ error: true, message: 'URL NO ENCONTRADA' });
+});
+
 app.listen(port, () => {
   console.log('El servidor está inicializado en el puerto 3000');
 });

@@ -1,9 +1,6 @@
-const bcrypt = require('bcryptjs');
 const user = require('../model/user');
-const product = require('../model/product');
 
-const { User, Cart } = user;
-const { Product } = product;
+const { User } = user;
 
 const cartController = {
   cartAllItems(req, res) {
@@ -12,16 +9,20 @@ const cartController = {
     if (!id) {
       return res
         .status(400)
-        .json({ message: 'No se pueden encontrar productos1' });
+        .json({ error: true, message: 'No se pueden encontrar productos' });
     }
 
     User.findOne({ _id: id }).then(user => {
       if (user) {
-        return res.json({ cart: user.cart });
+        return res.json({
+          error: false,
+          message: 'Carrito de Compras',
+          result: user.cart
+        });
       }
       return res
         .status(400)
-        .json({ message: 'No se pueden encontrar productos2' });
+        .json({ error: true, message: 'No se pueden encontrar productos' });
     });
   },
   cartAddItem(req, res) {
@@ -52,17 +53,28 @@ const cartController = {
           user
             .save()
             .then(result => {
-              return res.json({ result });
+              return res.json({
+                error: false,
+                message: 'Se añadio un nuevo producto al carrito de compras',
+                result
+              });
             })
             .catch(err => {
-              res.status(400).json({ err, msg: `No producto` });
+              res
+                .status(400)
+                .json({ error: true, message: `No se encontro el producto` });
             });
         } else {
-          return res.json({ message: 'No se encontro el carrito del Usuario' });
+          return res.json({
+            error: true,
+            message: 'No se encontro el carrito del Usuario'
+          });
         }
       })
       .catch(err => {
-        res.status(400).json({ err, msg: `No se pudo agregar el producto` });
+        res
+          .status(400)
+          .json({ error: true, message: `No se pudo agregar el producto` });
       });
   },
   cartUpdateItem(req, res) {
@@ -89,17 +101,26 @@ const cartController = {
           user
             .save()
             .then(result => {
-              return res.json({ result });
+              return res.json({
+                error: false,
+                message: 'Se modífico un producto en el carrito de compras',
+                result
+              });
             })
             .catch(err => {
-              res.status(400).json({ err, msg: `No producto` });
+              res.status(400).json({ error: true, message: `No producto` });
             });
         } else {
-          return res.json({ message: 'No se encontro el carrito del Usuario' });
+          return res.json({
+            error: true,
+            message: 'No se encontro el carrito del usuario'
+          });
         }
       })
       .catch(err => {
-        res.status(400).json({ err, msg: `No se pudo agregar el producto` });
+        res
+          .status(400)
+          .json({ error: true, message: `No se pudo agregar el producto` });
       });
   },
   cartDeleteItem(req, res) {
@@ -123,17 +144,26 @@ const cartController = {
           user
             .save()
             .then(result => {
-              return res.json({ result });
+              return res.json({
+                error: false,
+                message: 'Se elimino un producto del carrito de compras',
+                result
+              });
             })
             .catch(err => {
-              res.status(400).json({ err, msg: `No producto` });
+              res.status(400).json({ err, message: `No producto` });
             });
         } else {
-          return res.json({ message: 'No se encontro el carrito del Usuario' });
+          return res.json({
+            error: true,
+            message: 'No se encontro el carrito del Usuario'
+          });
         }
       })
       .catch(err => {
-        res.status(400).json({ err, msg: `No se pudo agregar el producto` });
+        res
+          .status(400)
+          .json({ error: true, message: `No se pudo agregar el producto` });
       });
   },
   checkout(req, res) {}
