@@ -14,17 +14,17 @@ router.get('/api/tags/:id', tagController.find);
 router.put('/api/tags/:id', tagController.update);
 router.delete('/api/tags/:id', tagController.delete);
 
-router.get('/api/products', productController.all);
-router.post('/api/products', productController.create);
-router.get('/api/products/:id', productController.find);
-router.put('/api/products/:id', productController.update);
-router.delete('/api/products/:id', productController.delete);
+router.get('/api/product', productController.all);
+router.post('/api/product', productController.create);
+router.get('/api/product/:id', productController.find);
+router.put('/api/product/:id', productController.update);
+router.delete('/api/product/:id', productController.delete);
 
-router.get('/api/products', productController.all);
-router.post('/api/products', productController.create);
-router.get('/api/products/:id', productController.find);
-router.put('/api/products/:id', productController.update);
-router.delete('/api/products/:id', productController.delete);
+router.get('/api/product', productController.all);
+router.post('/api/product', productController.create);
+router.get('/api/product/:id', productController.find);
+router.put('/api/product/:id', productController.update);
+router.delete('/api/product/:id', productController.delete);
 
 router.get('/api/user', userController.all);
 router.get('/api/user/:id', userController.find);
