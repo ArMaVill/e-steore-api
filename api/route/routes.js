@@ -6,7 +6,6 @@ const productController = require('../controllers/productController');
 const tagController = require('../controllers/tagController');
 const userController = require('../controllers/userController');
 const cartController = require('../controllers/cartController');
-const addressController = require('../controllers/addressController');
 const orderController = require('../controllers/orderController');
 
 router.get('/api/tags', tagController.all);
@@ -45,26 +44,6 @@ router.put(
 router.delete(
   '/api/user/:id/order-history/:orderId',
   orderController.cancelOrder
-);
-
-router.get('/api/user/:id/cart', cartController.cartAllItems);
-router.post('/api/user/:id/cart/', cartController.cartAddItem);
-router.put('/api/user/:id/cart/', cartController.cartUpdateItem);
-router.delete('/api/user/:id/cart/', cartController.cartDeleteItem);
-
-router.get('/api/user/:id/user-address/', addressController.allAddresses);
-router.post('/api/user/:id/user-address/', addressController.createUserAddress);
-router.get(
-  '/api/user/:id/user-address/:addressId',
-  addressController.findAddress
-);
-router.put(
-  '/api/user/:id/user-address/:addressId',
-  addressController.updateAddress
-);
-router.delete(
-  '/api/user/:id/user-address/:addressId',
-  addressController.deleteAddress
 );
 
 module.exports = router;

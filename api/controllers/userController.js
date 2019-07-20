@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const Model = require('../model/user');
 
 const { User, Cart } = Model;
@@ -13,10 +14,10 @@ const userController = {
       .then((user, err) => {
         console.log(err, user);
         if (user) return res.json(user);
-        res.status(400).json({ err, msg: `Usuario no encontrado` });
+        res.status(400).json({ err, message: `Usuario no encontrado` });
       })
       .catch(err => {
-        res.status(400).json({ err, msg: `Usuario no encontrado` });
+        res.status(400).json({ err, message: `Usuario no encontrado` });
       });
   },
   update(req, res) {
@@ -30,7 +31,7 @@ const userController = {
         user.email = userReq.email;
         user.save((err, updated) => res.json(updated));
       }
-      return res.status(400).json({ msg: `Usuario no encontrado` });
+      return res.status(400).json({ message: `Usuario no encontrado` });
     });
   },
   delete(req, res) {
@@ -48,15 +49,15 @@ const userController = {
   register(req, res) {
     const { username, email, password, line1, city, province } = req.body;
 
-    if (!username || !email || !password || line1 || city || province) {
-      return res.status(400).json({ msg: 'Faltan datos' });
+    if (!username || !email || !password || !line1 || !city || !province) {
+      return res.status(400).json({ message: 'Faltan datos' });
     }
 
     User.findOne({ email }).then(user => {
       if (user)
         return res
           .status(400)
-          .json({ msg: `El email ${email} ya esta en uso` });
+          .json({ message: `El email ${email} ya esta en uso` });
 
       const newUser = new User({
         username,
@@ -69,12 +70,18 @@ const userController = {
           if (err) throw err;
           newUser.password = hash;
           newUser.save().then(user => {
-            res.json({
-              user: {
-                id: user._id,
-                name: user.username,
-                email: user.email
-              }
+            jwt.sign({ _id: user.id }, process.env.JWT_SECRET, (err, token) => {
+              if (err) throw err;
+              res.json({
+                error: false,
+                message: 'Usuario creado',
+                user: {
+                  token,
+                  id: user._id,
+                  name: user.username,
+                  email: user.email
+                }
+              });
             });
           });
         });
