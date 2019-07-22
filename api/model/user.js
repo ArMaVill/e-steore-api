@@ -13,7 +13,6 @@ const cartSchema = Schema({
 const addressSchema = Schema({
   city: String,
   line1: String,
-  line2: String,
   province: String
 });
 

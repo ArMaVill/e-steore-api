@@ -9,8 +9,9 @@ const userController = {
     User.find().exec((err, user) => res.json(user));
   },
   find(req, res) {
-    const { id } = req.params;
+    const id = req.user._id;
     User.findOne({ _id: id })
+      .select('-password ')
       .then((user, err) => {
         console.log(err, user);
         if (user) return res.json(user);
@@ -56,8 +57,8 @@ const userController = {
     User.findOne({ email }).then(user => {
       if (user)
         return res
-          .status(400)
-          .json({ message: `El email ${email} ya esta en uso` });
+          .status(200)
+          .json({ error: true, message: `El email ${email} ya esta en uso` });
 
       const newUser = new User({
         username,
@@ -70,35 +71,74 @@ const userController = {
           if (err) throw err;
           newUser.password = hash;
           newUser.save().then(user => {
-            jwt.sign({ _id: user.id }, process.env.JWT_SECRET, (err, token) => {
-              if (err) throw err;
-              res.json({
-                error: false,
-                message: 'Usuario creado',
-                user: {
+            jwt.sign(
+              { _id: user._id },
+              process.env.JWT_SECRET,
+              (err, token) => {
+                if (err) throw err;
+                res.json({
+                  error: false,
+                  message: 'Usuario creado',
                   token,
-                  id: user._id,
-                  name: user.username,
-                  email: user.email
-                }
-              });
-            });
+                  user: {
+                    id: user._id,
+                    name: user.username,
+                    email: user.email
+                  }
+                });
+              }
+            );
           });
         });
       });
     });
   },
   login(req, res) {
-    const requestBody = req.body;
-    const newUser = new User(requestBody);
-
-    newUser.save().exec((err, user) => res.json(user));
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.json({
+        error: true,
+        message: 'Especifíca tu email y tu contraseña'
+      });
+    }
+    User.findOne({ email })
+      .then(user => {
+        if (user) {
+          bcrypt.compare(password, user.password).then(valid => {
+            if (!valid) {
+              console.log(valid);
+              res.json({ error: true, message: 'Contraseña incorrecta' });
+            } else {
+              jwt.sign(
+                { _id: user._id },
+                process.env.JWT_SECRET,
+                (err, token) => {
+                  if (err) throw err;
+                  return res.json({
+                    error: false,
+                    message: 'Login Exitoso!',
+                    user: {
+                      id: user._id,
+                      name: user.username,
+                      email: user.email
+                    },
+                    token
+                  });
+                }
+              );
+            }
+          });
+        } else {
+          res.json({ error: true, message: `El usuario ${email} no existe!` });
+        }
+      })
+      .catch(err => {
+        res.status(400).json({ error: true, message: `Usuario no encontrado` });
+      });
   },
   logout(req, res) {
     const requestBody = req.body;
     const newUser = new User(requestBody);
-
-    newUser.save((err, user) => res.json(user));
   },
   allAddresses() {}
 };

@@ -51,6 +51,24 @@ const productController = {
     Product.findOne({ _id: idParam }).remove((err, removed) =>
       res.json({ error: false, message: 'Elimino un Producto', idParam })
     );
+  },
+  productByTag(req, res) {
+    const { name } = req.params;
+
+    Tag.findOne({ name: name.toUpperCase() }, (err, tag) => {
+      if (tag) {
+        const tagId = tag._id;
+        Product.find({ tags: tagId })
+          .populate('tags')
+          .exec((err, products) =>
+            res.json({ error: false, message: 'Producto', products })
+          );
+      } else {
+        return res
+          .status(400)
+          .json({ error: true, message: 'No se encontro esa categoria' });
+      }
+    });
   }
 };
 
