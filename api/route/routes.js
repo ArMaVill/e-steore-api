@@ -36,6 +36,9 @@ router.post('/api/user/register', userController.register);
 router.post('/api/auth/login', userController.login);
 router.post('/api/auth/logout', userController.logout);
 
+router.get('/api/user/:id/cart/', cartController.cartAllItems);
+router.post('/api/user/:id/cart/', cartController.cartAddItem);
+
 router.get('/api/user/:id/order-history/', auth, orderController.allOrders);
 router.post('/api/user/:id/cart/checkout', auth, orderController.createOrder);
 router.get(

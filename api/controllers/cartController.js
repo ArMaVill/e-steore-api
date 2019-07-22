@@ -5,7 +5,7 @@ const { User } = user;
 const cartController = {
   cartAllItems(req, res) {
     const { id } = req.params;
-    console.log(req.params);
+
     if (!id) {
       return res
         .status(400)
@@ -28,7 +28,7 @@ const cartController = {
   cartAddItem(req, res) {
     const { id } = req.params;
     const { itemId } = req.body;
-
+    console.log(req.body.itemId, id);
     User.findOne({ _id: id })
       .then(user => {
         if (user) {
@@ -39,6 +39,7 @@ const cartController = {
 
           const { cart } = user;
           const { items } = cart;
+
           let itemAmount = 1;
           for (let index = 0; index < items.length; index += 1) {
             if (items[index].product.toString() === item.product) {
@@ -47,7 +48,9 @@ const cartController = {
               index -= 1;
             }
           }
+
           item.quantity = itemAmount;
+
           cart.items.push(item);
 
           user
