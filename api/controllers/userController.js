@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Model = require('../model/user');
 
-const { User, Cart } = Model;
+const { User } = Model;
 
 const userController = {
   all(req, res) {
@@ -13,7 +13,6 @@ const userController = {
     User.findOne({ _id: id })
       .select('-password ')
       .then((user, err) => {
-        console.log(err, user);
         if (user) return res.json(user);
         res.status(400).json({ err, message: `Usuario no encontrado` });
       })
@@ -93,6 +92,7 @@ const userController = {
       });
     });
   },
+
   login(req, res) {
     const { email, password } = req.body;
     if (!email || !password) {

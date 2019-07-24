@@ -1,4 +1,4 @@
-const Model = require('../model/product');
+const Model = require('../model/user');
 
 const { Product, Tag } = Model;
 

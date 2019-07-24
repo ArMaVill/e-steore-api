@@ -1,10 +1,10 @@
 const Model = require('../model/user');
 
-const { User, Address, Order } = Model;
+const { User } = Model;
 
 const orderController = {
   allOrders(req, res) {
-    const { id } = req.params;
+    const id = req.user._id;
     if (!id) {
       return res
         .status(400)
@@ -22,12 +22,14 @@ const orderController = {
       }
       return res
         .status(400)
-        .json({ error: true, message: 'No se pueden encontrar productos' });
+        .json({ error: true, message: 'No se encontro el usuario' });
     });
   },
   findOrder(req, res) {
-    const { id, orderId } = req.params;
-
+    const { orderId } = req.params;
+    const id = req.user._id;
+    console.log(orderId);
+    console.log(id);
     if (!id) {
       return res
         .status(400)
@@ -57,7 +59,8 @@ const orderController = {
     });
   },
   createOrder(req, res) {
-    const { id } = req.params;
+    const id = req.user._id;
+    const { total } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -71,35 +74,39 @@ const orderController = {
         if (user) {
           const { cart, orders } = user;
           const now = new Date();
-          if (cart.items.length < 1)
+
+          if (cart.length < 1)
             return res.status(400).json({
               error: true,
               message: `El carrito de compras eta vacio`
             });
 
-          const order = new Order({
-            items: cart.items,
+          const order = {
+            items: cart,
             status: 'Pending',
-            date: now
-          });
+            date: now,
+            total
+          };
 
           orders.push(order);
-          cart.items = [];
-        }
-        user
-          .save()
-          .then(result => {
-            return res.json({
-              error: false,
-              message: 'Lista de ordenes',
-              result
+          user.orders = orders;
+          user.cart = [];
+
+          user
+            .save()
+            .then(result => {
+              return res.json({
+                error: false,
+                message: 'Lista de ordenes',
+                result
+              });
+            })
+            .catch(err => {
+              return res
+                .status(400)
+                .json({ error: true, message: `No producto` });
             });
-          })
-          .catch(err => {
-            return res
-              .status(400)
-              .json({ error: true, message: `No producto` });
-          });
+        }
       })
       .catch(err => {
         return res

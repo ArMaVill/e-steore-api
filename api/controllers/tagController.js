@@ -1,4 +1,4 @@
-const schema = require('../model/product');
+const schema = require('../model/user');
 
 const { Tag } = schema;
 

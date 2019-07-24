@@ -1,6 +1,6 @@
-const user = require('../model/user');
+const model = require('../model/user');
 
-const { User } = user;
+const { User, Product } = model;
 
 const cartController = {
   cartAllItems(req, res) {
@@ -28,45 +28,60 @@ const cartController = {
   cartAddItem(req, res) {
     const { id } = req.params;
     const { itemId } = req.body;
+
     console.log(req.body.itemId, id);
     User.findOne({ _id: id })
       .then(user => {
         if (user) {
           const item = {
-            quantity: 1,
-            product: itemId
+            product: itemId,
+            quantity: 2,
+            total: 0
           };
 
           const { cart } = user;
-          const { items } = cart;
 
           let itemAmount = 1;
-          for (let index = 0; index < items.length; index += 1) {
-            if (items[index].product.toString() === item.product) {
-              itemAmount = items[index].quantity + 1;
-              items.splice(index, 1);
+          for (let index = 0; index < cart.length; index += 1) {
+            if (cart[index].product.toString() === item.product) {
+              itemAmount = cart[index].quantity + 1;
+              cart.splice(index, 1);
               index -= 1;
             }
           }
-
           item.quantity = itemAmount;
 
-          cart.items.push(item);
+          Product.findOne({ _id: itemId }).then(product => {
+            if (product) {
+              item.total = product.price * itemAmount;
 
-          user
-            .save()
-            .then(result => {
+              cart.push(item);
+
+              user.cart = cart;
+
+              user
+                .save()
+                .then(result => {
+                  return res.json({
+                    error: false,
+                    message:
+                      'Se añadio un nuevo producto al carrito de compras',
+                    result
+                  });
+                })
+                .catch(err => {
+                  res.status(400).json({
+                    error: true,
+                    message: `No se encontro el producto`
+                  });
+                });
+            } else {
               return res.json({
                 error: false,
-                message: 'Se añadio un nuevo producto al carrito de compras',
-                result
+                message: 'producto no encontrado'
               });
-            })
-            .catch(err => {
-              res
-                .status(400)
-                .json({ error: true, message: `No se encontro el producto` });
-            });
+            }
+          });
         } else {
           return res.json({
             error: true,
@@ -88,19 +103,19 @@ const cartController = {
       .then(user => {
         if (user) {
           const { cart } = user;
-          const { items } = cart;
+
           const index = 1;
-          for (let index = 0; index < items.length; index += 1) {
-            if (items[index].product.toString() === itemId) {
-              items[index].quantity = newItemAmount;
+          for (let index = 0; index < cart.length; index += 1) {
+            if (cart[index].product.toString() === itemId) {
+              cart[index].quantity = newItemAmount;
               if (newItemAmount === 0) {
-                items.splice(index, 1);
+                cart.splice(index, 1);
                 index -= 1;
               }
             }
           }
-          cart.items = items;
 
+          user.cart = cart;
           user
             .save()
             .then(result => {
@@ -134,15 +149,14 @@ const cartController = {
       .then(user => {
         if (user) {
           const { cart } = user;
-          const { items } = cart;
-          const index = 1;
-          for (let index = 0; index < items.length; index += 1) {
-            if (items[index].product.toString() === itemId) {
-              items.splice(index, 1);
+
+          for (let index = 0; index < cart.length; index += 1) {
+            if (cart[index].product.toString() === itemId) {
+              cart.splice(index, 1);
               index -= 1;
             }
           }
-          cart.items = items;
+          user.cart = cart;
 
           user
             .save()

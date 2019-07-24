@@ -4,22 +4,10 @@ const { Schema } = mongoose;
 const model = mongoose.model.bind(mongoose);
 const { ObjectId } = mongoose.Schema.Types;
 
-const cartSchema = Schema({
-  id: ObjectId,
-  status: String,
-  items: [{ product: { type: ObjectId, ref: 'Product' }, quantity: Number }]
-});
-
 const addressSchema = Schema({
   city: String,
   line1: String,
   province: String
-});
-
-const orderSchema = Schema({
-  items: [{ product: { type: ObjectId, ref: 'Product' }, quantity: Number }],
-  date: Date,
-  status: String
 });
 
 const userSchema = Schema({
@@ -27,30 +15,42 @@ const userSchema = Schema({
   username: String,
   password: String,
   email: String,
-  cart: {
-    type: cartSchema,
-    default: {
-      status: 'active',
-      items: []
+  cart: [
+    {
+      product: { type: ObjectId, ref: 'Product' },
+      quantity: Number,
+      total: Number
     }
-  },
+  ],
   orders: [
     {
-      items: [
-        { product: { type: ObjectId, ref: 'Product' }, quantity: Number }
-      ],
+      id: ObjectId,
+      items: [[]],
       date: Date,
-      status: String
+      status: String,
+      total: Number
     }
   ],
   address: { type: ObjectId, ref: 'Address' }
 });
 
-userSchema.virtual('total').get(() => this.cart.items.count);
+const productSchema = Schema({
+  id: ObjectId,
+  name: String,
+  image: String,
+  price: Number,
+  description: String,
+  tags: [{ type: ObjectId, ref: 'Tag' }]
+});
 
-const Cart = model('Cart', cartSchema);
+const tagSchema = Schema({
+  id: ObjectId,
+  name: { type: String, uppercase: true }
+});
+
+const Product = model('Product', productSchema);
+const Tag = model('Tag', tagSchema);
 const Address = model('Address', addressSchema);
-const Order = model('Order', orderSchema);
 const User = model('User', userSchema);
 
-module.exports = { User, Cart, Address, Order };
+module.exports = { User, Address, Product, Tag };
